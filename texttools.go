@@ -85,7 +85,7 @@ var (
 )
 
 // Shorten tries to create the most sensible (to a human) shortened text.
-// If possible, it will try cut at a non-word char.
+// If possible, it will try to cut at a non-word char.
 // It will strip newlines and carriage returns.
 func Shorten(str string, length int, appendStr string) (shorter string) {
 	// Replace all line chars with space
@@ -152,10 +152,6 @@ func SpecialCharsToStandard(str string) string {
 	return specialCharsReplacer.Replace(str)
 }
 
-func Slug(str string) string {
-	return KebabCase(SpecialCharsToStandard(str))
-}
-
 // UnCase takes a string in any "case" (kebab-case, snake_case, etc.) and creates a "normal" string.
 // E.g. my-slug-string -> "My slug string"
 func UnCase(str string) string {
@@ -164,18 +160,29 @@ func UnCase(str string) string {
 	return str
 }
 
+// Slug will convert a string to a slug.
+// It will also do  transliteration of non-ascii chars.
+func Slug(str string) string {
+	return KebabCase(SpecialCharsToStandard(str))
+}
+
+// SnakeCase will convert a string to snake_case
 func SnakeCase(str string) string {
 	return snakecase.Snakecase(str)
 }
 
+// KebabCase will convert a string to kebab-case
 func KebabCase(str string) string {
 	return strings.Replace(snakecase.Snakecase(str), "_", "-", -1)
 }
 
+// CamelCase will convert a string to camelCase
 func CamelCase(str string) string {
 	return camelcase.Camelcase(str)
 }
 
+// PascalCase will convert a string to PascalCase.
+// This is the same as camelCase, but with the first letter capitalized.
 func PascalCase(str string) string {
 	out := camelcase.Camelcase(str)
 	if len(out) > 0 {
@@ -184,6 +191,7 @@ func PascalCase(str string) string {
 	return out
 }
 
+// StringInSlice will check if a string is in a slice and return true if it is.
 func StringInSlice(searchStr string, strs []string) bool {
 	for _, str := range strs {
 		if searchStr == str {
@@ -193,7 +201,7 @@ func StringInSlice(searchStr string, strs []string) bool {
 	return false
 }
 
-// HTMLToText converts HTML to standard text
+// HTMLToText converts HTML to standard text.
 func HTMLToText(html string) (text string) {
 	text = strings.Replace(html, "\r\n", " ", -1)
 	text = strip.StripTags(text)
@@ -201,7 +209,7 @@ func HTMLToText(html string) (text string) {
 	return
 }
 
-// TextSanitizer converts HTML to standard text, but also replaces some special chars (one for now...)
+// TextSanitizer converts HTML to standard text, but also replaces some special chars and escapings.
 func SanitizeText(txt string) (newTxt string) {
 	newTxt = HTMLToText(txt)
 	newTxt = strings.Replace(newTxt, "½", "1/2", -1)
@@ -211,7 +219,7 @@ func SanitizeText(txt string) (newTxt string) {
 	return
 }
 
-// CP1258ToUTF8 converts a CP1258 byte array to a UTF-8 string
+// CP1258ToUTF8 converts a CP1258 byte array to a UTF-8 string.
 func CP1258ToUTF8(txt []byte) (utf8Txt string) {
 	for _, chr := range txt {
 		if r := cp1258[chr]; len(string(r)) > 0 {
@@ -223,9 +231,9 @@ func CP1258ToUTF8(txt []byte) (utf8Txt string) {
 	return
 }
 
-// RandomString creates a secure pseudorandom string using the crypto rand package
+// RandomString creates a secure pseudorandom string using the crypto rand package.
 func RandomString(n int) (str string) {
-	// Counter-intuitively, the max here means < max
+	// Note: Counter-intuitively, the max here means < max
 	max := big.NewInt(int64(len(possibleChars)))
 	b := make([]byte, n)
 
